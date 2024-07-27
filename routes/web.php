@@ -157,3 +157,9 @@ Route::post('import-csv', [UserController::class, 'importCSV'])->name('import');
 Route::resource('products', productController::class);
 // Route::get('export-csv', [ExpensesController::class, 'exportCSV'])->name('export');
 Route::post('import-csv', [productController::class, 'importCSV'])->name('import');
+
+
+// deactivation
+// Temporarily remove the 'auth' middleware for testing
+Route::resource('users', UserController::class);
+Route::get('users/status/{user_id}/{status_code}', [UserController::class, 'updateStatus'])->name('users.status.update');

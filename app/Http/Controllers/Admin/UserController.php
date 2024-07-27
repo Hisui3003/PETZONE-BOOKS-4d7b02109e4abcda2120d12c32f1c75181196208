@@ -60,19 +60,19 @@ class UserController extends Controller
             $user->password = $request->input('password');
             $user->role = $request->input('role');
             $user->phone_number = $request->input('phone_number');
-            $user->address = $request->input('address'); 
+            $user->address = $request->input('address');
             if ($request->hasFile('image_path')) {
                 // Store the new image and update the user's image_path
             $imagePath = $request->file('image_path')->store('profile_images', 'public');
             $user->image_path = $imagePath;
             } else {
-               
+
             $user->image_path = null; // Or leave it as null
             }
             $user->save();
 
         return redirect()->route('admin.users.all')->with('simpleSuccessAlert', 'User added successfully');
-        } 
+        }
     /**
      * Show form for editing the specified user.
      * @param  \Illuminate\Http\Request  $request
@@ -85,7 +85,7 @@ class UserController extends Controller
         return view('admin.frontend.users.edit', compact('user'));
     }
 
-    /** 
+    /**
      * Update specified user in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -110,7 +110,7 @@ class UserController extends Controller
         $user->address = $request->input('address');
 
     if ($request->hasFile('image_path')) {
-        
+
         $imagePath = $request->file('image_path')->store('profile_images', 'public');
         $user->image_path = $imagePath;
     }
@@ -151,7 +151,7 @@ class UserController extends Controller
             'role' => 'required|in:user,admin',
             'phone_number' => 'required|string|max:20', // Changed field name to match HTML form
             'address' => 'required|string|max:255',
-        ]);  
+        ]);
     }
 
     protected function validateUpdateForm(Request $request)
@@ -172,7 +172,7 @@ class UserController extends Controller
         $user->update(['is_active' => false]);
 
         return redirect()->back()->with('success', 'User deactivated successfully');
-    }   
+    }
 
 
      // import csv
@@ -184,15 +184,15 @@ class UserController extends Controller
          //read csv file and skip data
          $file = $request->file('import_csv');
          $handle = fopen($file->path(), 'r');
- 
+
          //skip the header row
          fgetcsv($handle);
- 
+
          $chunksize = 25;
          while(!feof($handle))
          {
              $chunkdata = [];
- 
+
              for($i = 0; $i<$chunksize; $i++)
              {
                  $data = fgetcsv($handle);
@@ -202,14 +202,14 @@ class UserController extends Controller
                  }
                  $chunkdata[] = $data;
              }
- 
+
              $this->getchunkdata($chunkdata);
          }
          fclose($handle);
- 
+
          return redirect()->route('users.create')->with('success', 'Data has been added successfully.');
      }
- 
+
      public function getchunkdata($chunkdata)
  {
      foreach ($chunkdata as $column) {
@@ -221,7 +221,7 @@ class UserController extends Controller
          $Number = $column[4];
          $Address = $column[5];
          $Image = $column[6];
- 
+
          // Create new expense
          $users = new User();
          // $users->id = $supplier_id;
@@ -231,7 +231,7 @@ class UserController extends Controller
          $users->role = $Role;
          $users->phone_number = $Number;
          $users->address = $Address;
- 
+
          // Handle image upload
          if ($Image) {
              $source_path = 'C:/xampp/htdocs/petzone-master/public/images/' . $Image;
@@ -241,12 +241,37 @@ class UserController extends Controller
                  $users->image_path = $Image;
              }
          }
- 
+
          // dd($Supplier);
          $users->save();
      }
  }
- 
- 
+
+//  function for deact
+
+/**
+     * To update status of use
+     * @param  Integer $user_id
+     * @param  Integer $status_code
+     * @return Success Response.
+     */
+public function updateStatus($user_id, $status_code) {
+
+    try {
+        $update_user = User::whereId($user_id)->update([
+            'status'=> $status_code
+        ]);
+
+        // dd($update_user);
+        if($update_user){
+            return redirect()->route('admin.users.all')->with('success','User Status Updated Succesfully.');
+        }
+
+        return redirect()->route('admin.users.all')->with('success','Fail to Update User Status.');
+
+    } catch(\Throwable $th) {
+        throw $th;
+    }
+}
 
 }
